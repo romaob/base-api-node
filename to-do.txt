@@ -5,3 +5,7 @@ Add management for mysql database
 
 Add management for noSQL database
     - Migration
+
+
+Add routes documentation 
+    - swagger
