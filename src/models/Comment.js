@@ -8,8 +8,9 @@ class Comment{
             post_id: post_id,
             user_id: user_id,
             text: text,
-            date_register: new Date(),
-            edited: null
+            date_registration: new Date(),
+            edited: null,
+            deleted: null
         }
     }
 }

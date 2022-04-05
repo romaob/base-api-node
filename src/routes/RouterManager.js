@@ -1,66 +1,62 @@
-//This manager will be used in almost every route, to check and validate the requests
-//It will have a basic validation funcion to handle the most opened routes
-//Also it will have a primary validation funcion wich checks the headers, and app tokens, for restricted areas of the api that only applications can access
-//And finally a validation funcion to check the auth of the user, and the level of access.
+/*
+    The RouterManager is responsible for validate and process almost every request before its proper route
+*/
 
-class RouterManager {
+const User = require("../models/User");
 
-    constructor() {}
+/*
+    The default request readers
+*/
+const DEFAULT_REQ_HEADERS = {
+    USER_EMAIL: "user-email",
+    USER_PASSWORD: "user-password",
+    USER_TOKEN: "user-token",
+    APPLICATION: "application",
+    APPLICATION_TOKEN: "application-token",
+    APPLICATION_SECRET: "application-secret",    
+}
+exports.DEFAULT_REQ_HEADERS = DEFAULT_REQ_HEADERS;
 
-    checkRequestBasic(req) {
-        return new Promise((resolve, reject) => { 
-            //Check if the expected headers exists and are valid
 
-                //Returns reject with 400 if they are invlid or not found
-            
-            //Check if the values are the expected
-
-                //Returns reject 401 if they are not as expected
-
-            //If everything is right, returns resolve with 202
-        })
-    }
-
-    checkAppAuth(req) {
-        return new Promise((resolve, reject) => { 
-            //Check if the expected headers exists and are valid
-
-                //Returns reject with 400 if they are invlid or not found
-
-            //Find the secret key for the application
-
-                //Returns reject with 404 if not found
-
-            //Check and compare with the token of the request
-
-                //Returns reject with 401 if they not match
-
-            //If everything goes well, return resolve with 202
-        })
-    }
-
-    checkUserAuth(req) {
-        return new Promise((resolve, reject) => { 
-            //Check if the expected headers exists and are valid
-
-                //Returns reject with 400 if they are invlid or not found
-            
-            //Find the user on the database, based on the email
-    
-                //Returns reject with  404 if not found
-    
-            //Check the auth token and if it is expired
-    
-                //Returns reject with 401 if it is expired or not valid
-    
-            //Check the user access level
-    
-                //Returns reject with 401 if it not match with the database access level
-    
-            //If everything is fine, return resolve with the user object
-        })
-    }
-
+/*
+    Function to process and validade the request
+*/
+const processRequest = (req, res) => {
+    return new Promise((resolve, reject) => {
+        // TODO: implement the validations for the requests
+        return resolve(true);      
+    })    
 }
 
-module.exports = new RouterManager()
+exports.processRequest = processRequest;
+
+/*
+    Function to validate and check the usr authentication before processing further
+*/
+const checkUserAuth = (req, res) => {
+    return new Promise((resolve, reject) => {
+        let email = req.headers[DEFAULT_REQ_HEADERS.USER_EMAIL];
+        let access_token = req.headers[DEFAULT_REQ_HEADERS.USER_TOKEN];
+
+        if(!email || email === "" || !access_token || access_token === ""){
+            reject("Invalid user headers");
+            return res.status(400);;
+        }
+
+        let user = new User();
+        user.attributes = req.db.getByObject(user, {email: email});
+        if(!user.attributes || Object.keys(user.attributes).length === 0){
+            reject("Invalid user");
+            return res.status(401);
+        }
+
+        let valid = user.validateAccessToken(access_token);
+        if(!valid){
+            reject("Unauthorized user token");
+            return res.status(401);
+        }
+        return resolve(user);
+    })    
+}
+exports.checkUserAuth = checkUserAuth;
+

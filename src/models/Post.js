@@ -7,7 +7,7 @@ class Post{
             id: id,
             user_id: user_id,            
             text: text,
-            date_register: new Date(),
+            date_registration: new Date(),
             deleted: null,        
             edited: null,
             comments: [],
